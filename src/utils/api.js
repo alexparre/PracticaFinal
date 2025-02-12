@@ -8,7 +8,7 @@ export async function getCourses() {
     throw new Error("Error al obtener los cursos");
   }
   const data = await response.json();
-  return data ? Object.values(data).reverse() : [];
+  return (data ? Object.values(data).reverse() : []).filter(Boolean);
 }
 
 // Obtén los datos de un curso específico
@@ -31,7 +31,7 @@ export async function getCoursePaths() {
     return [];
   }
   const data = await response.json();
-  return data ? Object.keys(data).map((key) => ({ id: key })) : [];
+  return (data ? Object.values(data).reverse() : []).filter(Boolean).map((c) => ({ id: c.id }));
 }
 
 // Obtén todas las noticias ordenadas por fecha más reciente

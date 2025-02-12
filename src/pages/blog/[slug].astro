@@ -10,6 +10,7 @@ import CartIcon from '../../components/CartIcon';
 
 export async function getStaticPaths() {
   const courses = await getCoursePaths() || [];
+  courses.map(course => console.log({id: course.id}))
   return courses.map(course => ({
     params: { slug: course?.id || '' }, // Evita errores si course.id es undefined
   }));
@@ -17,6 +18,7 @@ export async function getStaticPaths() {
 
 // Obtén los datos del curso actual y de todos los cursos
 const { slug } = Astro.params;
+console.log({slug})
 
 // Verificar si el slug es válido antes de intentar buscar el curso
 if (!slug) {
