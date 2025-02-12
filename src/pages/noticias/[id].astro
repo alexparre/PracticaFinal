@@ -1,0 +1,129 @@
+---
+import '../../styles/global.css';
+import { getNewsPaths, getNewsItem, getNews } from '../../utils/api';
+import LikeCounter from '../../components/LikeCounter';
+import SearchComponent from '../../components/SearchComponent';
+import ProfileComponent from '../../components/ProfileComponent';
+import CartIcon from '../../components/CartIcon';
+
+// Define las rutas dinámicas
+export async function getStaticPaths() {
+  const newsPaths = await getNewsPaths();
+  return newsPaths.map(news => ({
+    params: { id: news.id },
+  }));
+}
+
+// Obtén los datos de la noticia actual y de todas las noticias
+const { id } = Astro.params;
+const newsItem = await getNewsItem(id);
+const allNews = await getNews();
+
+if (!newsItem) {
+  throw new Error('Noticia no encontrada');
+}
+
+// Selecciona hasta 4 noticias aleatorias que no sean la actual
+const relatedNews = allNews
+  .filter(n => n.id !== newsItem.id) // Excluir la noticia actual
+  .sort(() => 0.5 - Math.random()) // Ordenar aleatoriamente
+  .slice(0, 4); // Limitar a 4
+---
+<html lang="es">
+  <meta charset="UTF-8">
+
+  <body class="bg-white text-gray-900">
+    <!-- Barra de Navegación -->
+    <nav class="absolute top-0 left-0 w-full text-white py-4 z-50">
+      <div class="container mx-auto flex justify-between items-center px-6">
+        <a href="/" class="flex items-center text-4xl font-extrabold tracking-wide hover:text-gray-200">
+          IT-ACADEMY
+        </a>
+        <ul class="flex space-x-8">
+          <SearchComponent client:load />
+          <ProfileComponent client:load />
+          <CartIcon client:load />
+          <li>
+            <a href="/" class="hover:text-gray-300 text-lg transition-all duration-300">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="28" height="30" fill="currentColor">
+                <path d="M32 3.5L2 28h6v30h16V41h16v17h16V28h6L32 3.5zM22 52h-8V36h8v16zm28 0h-8V36h8v16zM32 10L8 28h6v24h12V38h12v14h12V28h6L32 10z" />
+              </svg>
+            </a>
+          </li>
+          <li>
+            <a href="/noticias" class="hover:text-gray-300 text-lg transition-all duration-300">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="28" height="29" fill="currentColor">
+                <path d="M54 4H10a6 6 0 0 0-6 6v44a6 6 0 0 0 6 6h44a6 6 0 0 0 6-6V10a6 6 0 0 0-6-6zM10 8h44a2 2 0 0 1 2 2v36H8V10a2 2 0 0 1 2-2zm0 48a2 2 0 0 1-2-2v-6h48v6a2 2 0 0 1-2 2H10zm8-38h24v4H18zm0 10h28v4H18zm0 10h20v4H18z" />
+              </svg>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="relative text-white py-32" style="background: url('/id.gif') no-repeat center 50%; background-size: cover;">
+      <div class="absolute inset-0 bg-black bg-opacity-50"></div>
+      <div class="relative container mx-auto text-center">
+        <h1 class="text-5xl font-extrabold mb-4 drop-shadow-md">{newsItem.title}</h1>
+        <p class="bg-gradient-to-r from-yellow-400 via-red-500 to-pink-600 p-3 text-xl font-bold inline-block rounded-full">
+          {newsItem.description} 📚
+        </p>
+      </div>
+    </header>
+
+    <!-- Detalles de la Noticia -->
+    <main class="container mx-auto px-12 py-16 grid grid-cols-12 gap-8">
+      <!-- Contenido Principal -->
+      <article class="col-span-8">
+        <img
+          src={newsItem.image}
+          alt={newsItem.title}
+          class="w-full rounded-lg shadow-md mb-6 transition-transform duration-300 hover:scale-105"
+        />
+
+
+        <div class="bg-gray-100 p-6 rounded-lg shadow-md">
+            <h1 class="text-4xl text-center font-bold mb-4">{newsItem.title}</h1>
+            <p class="text-lg text-center text-gray-700 mb-6">{newsItem.contents}</p>
+          <p class="text-lg mb-4">
+            <span class="font-semibold text-gray-900">Fecha de Publicación:</span> {new Date(newsItem.date).toLocaleDateString()}
+          </p>
+        </div>
+      </article>
+
+      <!-- Noticias Relacionadas -->
+      <aside class="col-span-4">
+        <h2 class="text-xl font-semibold mb-4">Noticias Relacionadas</h2>
+        <div class="space-y-6">
+          {relatedNews.map(related => (
+            <a href={`/noticias/${related.id}`} key={related.id} class="block bg-white shadow-md rounded-lg overflow-hidden hover:shadow-lg transition-shadow">
+              <img
+                src={related.image}
+                alt={related.title}
+                class="w-full h-32 object-cover"
+              />
+              <div class="p-4">
+                <h3 class="text-lg font-semibold text-gray-800">{related.title}</h3>
+                <p class="text-sm text-gray-600 truncate">{related.description}</p>
+              </div>
+            </a>
+          ))}
+        </div>
+      </aside>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-[rgb(4,81,99)] text-gray-400 py-10 mt-20">
+      <div class="container mx-auto text-center">
+        <p class="text-lg font-semibold text-gray-200">Gracias por visitar IT-ACADEMY</p>
+        <p class="text-sm mt-4">&copy; 2025 IT Academy. Todos los derechos reservados.</p>
+        <div class="mt-6 space-x-8">
+          <a href="#" class="text-orange-400 hover:orange-blue-500 transition-all">Facebook</a>
+          <a href="#" class="text-orange-400 hover:orange-blue-500 transition-all">Twitter</a>
+          <a href="#" class="text-orange-400 hover:orange-blue-500 transition-all">Instagram</a>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

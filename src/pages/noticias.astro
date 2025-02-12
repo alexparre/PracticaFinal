@@ -1,0 +1,193 @@
+---
+import '../styles/global.css';
+import { getNews } from '../utils/api'; // Asegúrate de tener esta función implementada
+import SearchComponent from '../components/SearchComponent';
+import ProfileComponent from '../components/ProfileComponent';
+import CartIcon from '../components/CartIcon';
+import { getCourses } from '../utils/api';// Obtén los datos de noticias desde Firebase
+const news = await getNews();
+
+
+
+// Obtén los cursos desde Firebase y ordénalos por likes
+// Obtén los cursos desde Firebase
+const courses = await getCourses();
+
+// Filtrar cursos nulos o sin likes antes de ordenarlos
+const featuredCourses = (Array.isArray(courses) ? courses : [])
+  .filter(course => course && typeof course.likes === "number")  // Evita valores null o sin likes
+  .sort((a, b) => b.likes - a.likes)
+  .slice(0, 5); // Top 5 cursos con más likes
+---
+
+
+<html lang="es">
+  <meta charset="UTF-8">
+  <body class="bg-gradient-to-b from-gray-50 via-white to-gray-100 text-gray-900">
+    <!-- Barra de Navegación -->
+    <nav class="absolute top-0 left-0 w-full text-white py-4 z-50">
+        <div class="container mx-auto flex justify-between items-center px-6">
+          <a href="/" class="flex items-center text-4xl font-extrabold tracking-wide hover:text-gray-200">
+            IT-ACADEMY
+          </a>
+          <ul class="flex space-x-8">
+            <SearchComponent client:load />
+            <ProfileComponent client:load />
+            <CartIcon client:load />
+            <li>
+              <a href="/" class="hover:text-gray-300 text-lg py-1 transition-all duration-300">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="28" height="30" fill="currentColor">
+                  <path d="M32 3.5L2 28h6v30h16V41h16v17h16V28h6L32 3.5zM22 52h-8V36h8v16zm28 0h-8V36h8v16zM32 10L8 28h6v24h12V38h12v14h12V28h6L32 10z" />
+                </svg>
+              </a>
+            </li>
+            <li>
+              <a href="/noticias" class="hover:text-gray-300 text-lg transition-all duration-300">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="28" height="29" fill="currentColor">
+                  <path d="M54 4H10a6 6 0 0 0-6 6v44a6 6 0 0 0 6 6h44a6 6 0 0 0 6-6V10a6 6 0 0 0-6-6zM10 8h44a2 2 0 0 1 2 2v36H8V10a2 2 0 0 1 2-2zm0 48a2 2 0 0 1-2-2v-6h48v6a2 2 0 0 1-2 2H10zm8-38h24v4H18zm0 10h28v4H18zm0 10h20v4H18z" />
+                </svg>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </nav>
+      
+      <!-- Hero Section -->
+      <header class="relative text-white py-24" style="background: url('/fondo.gif') no-repeat center center; background-size: cover;">
+        <div class="absolute inset-0 bg-black bg-opacity-50"></div>
+        <div class="relative container mx-auto text-center px-8">
+          <h1 class="text-5xl font-extrabold mb-6 drop-shadow-lg">Descubre los últimos Cursos sobre IT 💻 🛠️</h1>
+          <p class="text-2xl mb-8">Encuentra tus cursos favoritos y explora muchas categorias del mundo IT.Aprende los últimos Frameworks y conviertete en un Programador profeisonal👨‍💻🔥</p>
+          <a href="/" class="bg-gradient-to-r from-yellow-400 via-red-500 to-pink-600 text-white font-bold py-4 px-12 rounded-full hover:scale-105 transition-all shadow-2xl">
+            Explorar cursos
+          </a>
+          
+          <section class="relative text-white mt-10">
+            <h2 class="text-4xl font-extrabold text-center mb-6">Cursos Destacados ⭐</h2>
+            <div class="slider-container relative overflow-hidden w-full h-96">
+              <div class="slider-wrapper flex transition-transform duration-500 space-x-6">
+                {featuredCourses.map((course, index) => (
+                  <div
+                    class={`slider-slide flex-shrink-0 h-full flex flex-col items-center justify-center bg-gray-100 rounded-lg shadow-md transition-transform`}
+                    key={course.id}
+                    style="width: 33%;"
+                  >
+                    <div class="text-center px-4 py-9">
+                      <img
+                        src={course.image}
+                        alt={course.title}
+                        class="w-32 h-32 rounded-lg w-48 mb-4 mx-auto shadow-lg"
+                      />
+                      <h3 class="text-xl font-bold text-gray-800 mb-2">{course.title}</h3>
+                      <p class="text-gray-600 text-sm truncate">{course.description}</p>
+                      <p class="text-sm font-bold text-red-500 mt-2">{course.likes} Likes ❤️</p>
+                      <a
+                        href={`/blog/${course.id}`}
+                        class="mt-4 inline-block px-4 py-2 bg-blue-600 text-white font-semibold rounded-full hover:bg-blue-700 transition"
+                      >
+                        Ver Curso
+                      </a>
+                    </div>
+                  </div>
+                ))}
+              </div>
+          
+              <!-- Botones de navegación -->
+              <button
+                class="slider-button-prev absolute left-4 top-1/2 transform -translate-y-1/2 bg-blue-600 text-white px-4 py-2 rounded-full"
+              >
+                Prev
+              </button>
+              <button
+                class="slider-button-next absolute right-4 top-1/2 transform -translate-y-1/2 bg-blue-600 text-white px-4 py-2 rounded-full"
+              >
+                Next
+              </button>
+            </div>
+          </section>
+          
+        </div>
+      </header>
+
+      
+    <!-- Sección de noticias -->
+    <main class="container mx-auto px-6 pt-24">
+      <h1 class="text-5xl font-extrabold mb-12 text-center">Últimas Noticias</h1>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-12">
+        {news.map((item) => (
+          <article key={item.id} class="bg-white shadow-lg rounded-lg overflow-hidden">
+            <img src={item.image} alt={item.title} class="w-full h-48 object-cover" />
+            <div class="p-6">
+              <h2 class="text-2xl font-bold mb-4">{item.title}</h2>
+              <p class="text-gray-700 mb-4">{item.description}</p>
+              <a
+                href={`/noticias/${item.id}`}
+                class="text-blue-600 hover:underline font-semibold"
+              >
+                Leer más →
+              </a>
+            </div>
+          </article>
+        ))}
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-[rgb(4,81,99)] text-gray-400 py-10 mt-20">
+      <div class="container mx-auto text-center">
+        <p class="text-lg font-semibold text-gray-200">Gracias por visitar IT-ACADEMY</p>
+        <p class="text-sm mt-4">&copy; 2025 IT Academy. Todos los derechos reservados.</p>
+      </div>
+    </footer>
+
+    <script client:load>
+      document.addEventListener("DOMContentLoaded", () => {
+        let currentSlide = 0;
+        const sliderWrapper = document.querySelector(".slider-wrapper");
+        const slides = document.querySelectorAll(".slider-slide");
+        const prevButton = document.querySelector(".slider-button-prev");
+        const nextButton = document.querySelector(".slider-button-next");
+    
+        // Actualiza la posición del slider
+        const updateSliderPosition = () => {
+          const slideWidth = slides[0].clientWidth; // Ancho completo de un slide
+          sliderWrapper.style.transform = `translateX(-${currentSlide * slideWidth}px)`;
+    
+          slides.forEach((slide, index) => {
+            if (index === currentSlide) {
+              slide.classList.add("scale-130", "z-20");
+              slide.classList.remove("opacity-60");
+            } else {
+              slide.classList.remove("scale-130", "z-20");
+              slide.classList.add("opacity-60");
+            }
+          });
+        };
+    
+        // Botón "Next"
+        nextButton.addEventListener("click", () => {
+          if (currentSlide < slides.length - 1) {
+            currentSlide++;
+          } else {
+            currentSlide = 0; // Reinicia al primer slide
+          }
+          updateSliderPosition();
+        });
+    
+        // Botón "Prev"
+        prevButton.addEventListener("click", () => {
+          if (currentSlide > 0) {
+            currentSlide--;
+          } else {
+            currentSlide = slides.length - 1; // Va al último slide
+          }
+          updateSliderPosition();
+        });
+    
+        // Inicializa el slider
+        updateSliderPosition();
+      });
+    </script>
+    
+  </body>
+</html>

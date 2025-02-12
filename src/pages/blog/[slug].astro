@@ -1,0 +1,173 @@
+---
+import '../../styles/global.css';
+import { getCoursePaths, getCourse, getCourses } from '../../utils/api';
+import LikeCounter from '../../components/LikeCounter';
+import SearchComponent from '../../components/SearchComponent';
+import ProfileComponent from '../../components/ProfileComponent';
+import ClientOnlyContent from '../../components/ClientOnlyContent.jsx';
+import ReviewComponent from '../../components/ReviewComponent.jsx';
+import CartIcon from '../../components/CartIcon';
+
+export async function getStaticPaths() {
+  const courses = await getCoursePaths() || [];
+  return courses.map(course => ({
+    params: { slug: course?.id || '' }, // Evita errores si course.id es undefined
+  }));
+}
+
+// Obtén los datos del curso actual y de todos los cursos
+const { slug } = Astro.params;
+
+// Verificar si el slug es válido antes de intentar buscar el curso
+if (!slug) {
+  throw new Error('Slug no definido');
+}
+
+let course = null;
+try {
+  course = await getCourse(slug);
+} catch (error) {
+  console.error(`Error obteniendo el curso con slug "${slug}":`, error);
+}
+
+// Si el curso no existe, manejarlo sin romper la app
+if (!course) {
+  console.warn(`Curso no encontrado para el slug: ${slug}`);
+  course = null; // O asigna un objeto vacío con valores predeterminados si prefieres
+}
+
+const allCourses = await getCourses() || [];
+
+// Evitar errores si `course` es null antes de acceder a `id`
+const relatedCourses = course 
+  ? allCourses
+      .filter(c => c?.id && c.id !== course.id) // Asegurar que c.id exista antes de compararlo
+      .sort(() => 0.5 - Math.random()) // Ordenar aleatoriamente
+      .slice(0, 4) // Limitar a 4
+  : [];
+---
+<html lang="es">
+  <meta charset="UTF-8">
+
+  <body class="bg-white text-gray-900">
+    <!-- Barra de Navegación -->
+    <body class="bg-gradient-to-b from-gray-50 via-white to-gray-100 text-gray-900">
+      <!-- Barra de Navegación -->
+      <nav class="absolute top-0 left-0 w-full text-white py-4 z-50">
+        <div class="container mx-auto flex justify-between items-center px-6">
+          <a href="/" class="flex items-center text-4xl font-extrabold tracking-wide hover:text-gray-200">
+                       IT-ACADEMY
+          </a>
+          <ul class="flex space-x-8">
+            <SearchComponent client:load />
+            <ProfileComponent client:load />
+            <CartIcon client:load />
+            <li><a href="/" class="hover:text-gray-300 text-lg transition-all duration-300"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="28" height="30" fill="currentColor">
+              <path d="M32 3.5L2 28h6v30h16V41h16v17h16V28h6L32 3.5zM22 52h-8V36h8v16zm28 0h-8V36h8v16zM32 10L8 28h6v24h12V38h12v14h12V28h6L32 10z" />
+            </svg>
+            </a></li>
+            <li><a href="/noticias" class="hover:text-gray-300 text-lg transition-all duration-300"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="28" height="29" fill="currentColor">
+              <path d="M54 4H10a6 6 0 0 0-6 6v44a6 6 0 0 0 6 6h44a6 6 0 0 0 6-6V10a6 6 0 0 0-6-6zM10 8h44a2 2 0 0 1 2 2v36H8V10a2 2 0 0 1 2-2zm0 48a2 2 0 0 1-2-2v-6h48v6a2 2 0 0 1-2 2H10zm8-38h24v4H18zm0 10h28v4H18zm0 10h20v4H18z" />
+            </svg>
+            </a></li>
+          </ul>
+        </div>
+      </nav>
+      <!-- Hero Section -->
+      <header class="relative text-white py-32" style="background: url('/wall2.gif') no-repeat center 80%; background-size: cover;">
+        <div class="absolute inset-0 bg-black bg-opacity-50"></div>
+        <div class="relative container mx-auto text-center">
+          <h1 class="text-5xl font-extrabold mb-4 drop-shadow-md">{course.title}</h1>
+          <p class="bg-gradient-to-r from-yellow-400 via-red-500 to-pink-600 p-3 text-xl font-bold inline-block rounded-full">{course.description}📚</p>
+        </div>
+      </header>
+
+
+    <!-- Detalles del Curso -->
+    <main class="container mx-auto px-12 py-16 grid grid-cols-12 gap-8">
+      <!-- Contenido Principal -->
+
+
+      <article class="col-span-8">
+        <img 
+          src={course.image} 
+          alt={course.title} 
+          class="w-full rounded-lg shadow-md mb-6 transition-transform duration-300 hover:scale-105" 
+        />
+        <LikeCounter courseID={course.id} client:load />
+        <h1 class="text-4xl text-center font-bold mb-4">{course.title}</h1>
+        <p class="text-lg text-center text-gray-700 mb-6">{course.description}</p>
+
+        <div class="bg-gray-100 p-6 rounded-lg shadow-md">
+          <p class="text-lg mb-4">
+            <span class="font-semibold text-gray-900">Duración:</span> {course.duration}
+          </p>
+          <p class="text-lg mb-4">
+            <span class="font-semibold text-gray-900">Nivel:</span> {course.level}
+          </p>
+          <p class="text-lg mb-4">
+            <span class="font-semibold text-gray-900">Precio:</span>
+            <span class="font-bold text-red-600"> {course.price} €</span>
+          </p>
+          <p class="text-lg mb-4">
+            <span class="font-semibold text-gray-900">Contenido:</span> {course.content}
+          </p>
+
+          <div class="mt-6">
+            <h3 class="text-lg font-bold mb-2">Instructor:</h3>
+            <div class="flex items-center space-x-4">
+              <img 
+                src={course.instructor.profilePicture} 
+                alt={course.instructor.name} 
+                class="w-20 h-20 rounded-full shadow-md"
+              />
+              <div>
+                <p class="font-medium">{course.instructor.name}</p>
+                <p class="text-sm text-gray-600">{course.instructor.bio}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mostrar contenido solo si el curso está comprado -->
+        <ClientOnlyContent client:load course={course} />
+      </article>
+
+      <!-- Cursos Relacionados -->
+      <aside class="col-span-4">
+        <h2 class="text-xl font-semibold mb-4">Cursos Relacionados</h2>
+        <div class="space-y-6">
+          {relatedCourses.map(related => (
+            <a href={`/blog/${related.id}`} key={related.id} class="block bg-white shadow-md rounded-lg overflow-hidden hover:shadow-lg transition-shadow">
+              <img 
+                src={related.image} 
+                alt={related.title} 
+                class="w-full h-32 object-cover"
+              />
+              <div class="p-4">
+                <h3 class="text-lg font-semibold text-gray-800">{related.title}</h3>
+                <p class="text-sm text-gray-600 truncate">{related.description}</p>
+                <p class="text-sm text-red-600 font-bold mt-2">{related.price} €</p>
+              </div>
+            </a>
+          ))}
+        </div>
+      </aside>
+
+      
+    </main>
+    <ReviewComponent client:load courseId={course.id} />
+    <!-- Footer -->
+    <footer class="bg-[rgb(4,81,99)]  text-gray-400 py-10 mt-20">
+      <div class="container mx-auto text-center">
+        <p class="text-lg font-semibold text-gray-200">Gracias por visitar IT-ACADEMY</p>
+        <p class="text-sm mt-4">&copy; 2025 IT Academy. Todos los derechos reservados.</p>
+        <div class="mt-6 space-x-8">
+          <a href="#" class="text-orange-400 hover:orange-blue-500 transition-all">Facebook</a>
+          <a href="#" class="text-orange-400 hover:orange-blue-500 transition-all">Twitter</a>
+          <a href="#" class="text-orange-400 hover:orange-blue-500 transition-all">Instagram</a>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>
