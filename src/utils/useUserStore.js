@@ -36,6 +36,11 @@ const useUserStore = create((set) => ({
     });
   },
 
+   /** 🔹 Actualizar los datos del usuario en Zustand */
+   updateUser: (updatedUser) => {  
+    set({ user: updatedUser });
+    localStorage.setItem('user', JSON.stringify(updatedUser));
+  },
   /** 🔹 Cargar el Usuario desde Firebase */
   fetchUserFromFirebase: async (userId) => {
     try {

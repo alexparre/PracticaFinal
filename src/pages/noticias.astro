@@ -1,16 +1,14 @@
 ---
 import '../styles/global.css';
-import { getNews } from '../utils/api'; // Asegúrate de tener esta función implementada
+import { getNews } from '../utils/api'; 
 import SearchComponent from '../components/SearchComponent';
 import ProfileComponent from '../components/ProfileComponent';
 import CartIcon from '../components/CartIcon';
-import { getCourses } from '../utils/api';// Obtén los datos de noticias desde Firebase
+import { getCourses } from '../utils/api';
 const news = await getNews();
 
 
 
-// Obtén los cursos desde Firebase y ordénalos por likes
-// Obtén los cursos desde Firebase
 const courses = await getCourses();
 
 // Filtrar cursos nulos o sin likes antes de ordenarlos
@@ -150,7 +148,7 @@ const featuredCourses = (Array.isArray(courses) ? courses : [])
     
         // Actualiza la posición del slider
         const updateSliderPosition = () => {
-          const slideWidth = slides[0].clientWidth; // Ancho completo de un slide
+          const slideWidth = slides[0].clientWidth; 
           sliderWrapper.style.transform = `translateX(-${currentSlide * slideWidth}px)`;
     
           slides.forEach((slide, index) => {
@@ -169,7 +167,7 @@ const featuredCourses = (Array.isArray(courses) ? courses : [])
           if (currentSlide < slides.length - 1) {
             currentSlide++;
           } else {
-            currentSlide = 0; // Reinicia al primer slide
+            currentSlide = 0; 
           }
           updateSliderPosition();
         });
@@ -179,7 +177,7 @@ const featuredCourses = (Array.isArray(courses) ? courses : [])
           if (currentSlide > 0) {
             currentSlide--;
           } else {
-            currentSlide = slides.length - 1; // Va al último slide
+            currentSlide = slides.length - 1; 
           }
           updateSliderPosition();
         });

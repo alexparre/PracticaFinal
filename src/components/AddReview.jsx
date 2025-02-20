@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { ref, push, get } from "firebase/database";
 import { db } from "../utils/firebaseConfig";
-import useUserStore from "../utils/useUserStore"; // Importar Zustand
+import useUserStore from "../utils/useUserStore"; 
 
 const AddReviewForm = ({ courseId, onReviewAdded }) => {
   const { user, updateUser } = useUserStore(); // 🔥 Obtener el usuario desde Zustand
@@ -41,24 +41,25 @@ const AddReviewForm = ({ courseId, onReviewAdded }) => {
   const handleSubmit = async () => {
     setShowDialog(false);
     setLoading(true);
-
+  
     try {
+      console.log("⏳ Enviando reseña a Firebase...");
       const newReview = {
         userName: user.name,
-        userPicture: user.profilePicture,
+        userPicture: user.profilePicture || "",
         rating,
         comment,
         createdAt: new Date().toISOString(),
       };
-
+  
       const reviewsRef = ref(db, `courses/${courseId}/reviews`);
       await push(reviewsRef, newReview);
-
+      console.log("✅ Reseña guardada en Firebase correctamente.");
+  
       setRating(5);
       setComment("");
       setHasReviewed(true);
-
-      // 🔥 Actualizar Zustand para reflejar la reseña en tiempo real
+  
       const updatedUser = {
         ...user,
         reviews: {
@@ -66,17 +67,32 @@ const AddReviewForm = ({ courseId, onReviewAdded }) => {
           [courseId]: newReview,
         },
       };
-      updateUser(updatedUser);
+      
+      console.log("🔄 Actualizando usuario en Zustand...");
+      if (updateUser) {
+        updateUser(updatedUser);
+      } else {
+        console.error("❌ ERROR: updateUser no está definido.");
+      }
+  
+      console.log("💾 Guardando usuario en localStorage...");
       localStorage.setItem("user", JSON.stringify(updatedUser));
-
-      onReviewAdded();
+  
+      console.log("📢 Llamando a onReviewAdded()...");
+      if (onReviewAdded) {
+        onReviewAdded();
+      } else {
+        console.error("❌ ERROR: onReviewAdded no está definido.");
+      }
+      
     } catch (error) {
-      console.error("Error al añadir la reseña:", error);
+      console.error("❌ Error en handleSubmit:", error);
       alert("Hubo un error al enviar la reseña. Por favor, inténtalo nuevamente.");
     } finally {
       setLoading(false);
     }
   };
+  
 
   const handleConfirmSubmit = (e) => {
     e.preventDefault();

@@ -1,15 +1,12 @@
 ---
 import '../styles/global.css';
-import { getCourses,getNews } from '../utils/api'; // Asegúrate de tener esta función
+import { getCourses,getNews } from '../utils/api'; 
 import SearchComponent from '../components/SearchComponent';
 import ProfileComponent from '../components/ProfileComponent';
 import CartIcon from '../components/CartIcon';
 import CourseGrid from '../components/CourseGrid';
-// Obtén los datos desde Firebase
 const news = await getNews();
 const courses = await getCourses();
-
-
 ---
 
 <style>

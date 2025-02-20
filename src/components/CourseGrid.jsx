@@ -1,37 +1,50 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import SearchComponentBar from "./SearchComponentBar";
+
 
 const CourseGrid = ({ courses = [] }) => {
   const [selectedLevel, setSelectedLevel] = useState("todos");
   const [sortOption, setSortOption] = useState("newest");
   const [currentPage, setCurrentPage] = useState(1);
-  const [searchTerm, setSearchTerm] = useState(""); // Estado para búsqueda en tiempo real
+  const [searchTerm, setSearchTerm] = useState("");
+  const [language, setLanguage] = useState("es");
   const coursesPerPage = 9;
 
-  // Filtrar cursos inválidos
+  useEffect(() => {
+    const storedLanguage = localStorage.getItem("preferredLanguage");
+    if (storedLanguage) {
+      setLanguage(storedLanguage);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (language) {
+      localStorage.setItem("preferredLanguage", language);
+    }
+  }, [language]);
+
+  const handleCourseClick = (courseId) => {
+    window.location.href = `/curso/${courseId}?lang=${language}`;
+  };
+
   const validCourses = courses?.filter(course => course && course.id) || [];
 
-  // Verificar si no hay cursos
   if (validCourses.length === 0) {
     return <p>Cargando cursos...</p>;
   }
 
-  // Ordenar los cursos por ID (para encontrar los más nuevos)
   const sortedById = [...validCourses].sort((a, b) => parseInt(b.id) - parseInt(a.id));
 
-  // Filtrar cursos según el nivel seleccionado
   const filteredByLevel =
     selectedLevel === "todos"
       ? sortedById
       : sortedById.filter(course => course.level?.toLowerCase() === selectedLevel);
 
-  // Filtrar cursos por término de búsqueda en tiempo real
   const filteredBySearch = filteredByLevel.filter(course =>
     course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     course.description.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Ordenar cursos según la opción seleccionada
   const sortedCourses = [...filteredBySearch].sort((a, b) => {
     if (sortOption === "newest") {
       return new Date(b.createdAt) - new Date(a.createdAt);
@@ -45,16 +58,13 @@ const CourseGrid = ({ courses = [] }) => {
     return 0;
   });
 
-  // Paginación
   const indexOfLastCourse = currentPage * coursesPerPage;
   const indexOfFirstCourse = indexOfLastCourse - coursesPerPage;
   const currentCourses = sortedCourses.slice(indexOfFirstCourse, indexOfLastCourse);
   const totalPages = Math.ceil(sortedCourses.length / coursesPerPage);
 
-  // Obtener IDs de los 3 cursos más nuevos
   const newestCourseIds = sortedById.slice(0, 3).map(course => course?.id || "N/A");
 
-  // Cambio de página
   const goToNextPage = (event) => {
     event.preventDefault();
     if (currentPage < totalPages) {
@@ -68,6 +78,7 @@ const CourseGrid = ({ courses = [] }) => {
       setCurrentPage(currentPage - 1);
     }
   };
+
 
   return (
     <div className="course-grid p-5">
@@ -111,14 +122,31 @@ const CourseGrid = ({ courses = [] }) => {
             <option value="leastHours">Menos Horas</option>
           </select>
         </div>
+
+        <div className="flex items-center">
+          <label htmlFor="language" className="text-xl font-semibold text-gray-800 mr-4">
+            Idioma:
+          </label>
+          <select
+            id="language"
+            className="border border-gray-300 rounded-lg px-4 py-2 text-gray-700 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+            value={language} // ✅ Se mantiene sincronizado con el estado
+            onChange={(e) => setLanguage(e.target.value)}
+          >
+            <option value="es">ES</option>
+            <option value="en">EN</option>
+          </select>
+        </div>
+
       </div>
       {/* Grid de cursos */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
         {currentCourses.map((course) => (
-          <div
-            key={course.id}
-            className="relative bg-white shadow-lg rounded-lg overflow-hidden hover:shadow-xl transform hover:scale-105 transition-all duration-300"
-          >
+          <div 
+          key={course.id} 
+          className="relative bg-white shadow-lg rounded-lg overflow-hidden hover:shadow-xl transform hover:scale-105 transition-all duration-300 cursor-pointer"
+          onClick={() => handleCourseClick(course.id)}
+        >
             {/* Mostrar "NEW" para los 3 últimos cursos añadidos */}
             {selectedLevel === 'todos' && newestCourseIds.includes(course.id) && (
               <div className="absolute top-3 left-3 bg-gradient-to-r from-red-500 to-orange-400 text-white text-xs font-bold uppercase py-1 px-3 rounded-full shadow-md z-10">
@@ -137,8 +165,12 @@ const CourseGrid = ({ courses = [] }) => {
                 </div>
               </div>
               <div className="p-6">
-              <h3 className="text-xl font-bold">{course.title}</h3>
-                <p className="text-gray-700 line-clamp-2">{course.description}</p>
+              <h3 className="text-xl font-bold">
+                {language === "es" ? course.title : course.translations?.en?.title || course.title}
+              </h3>
+              <p className="text-gray-700">
+                {language === "es" ? course.description : course.translations?.en?.description || course.description}
+              </p>
                 <div className="flex justify-between items-center mt-4">
                   <span className="text-sm font-medium text-yellow-600 bg-yellow-300 px-3 py-1 rounded-full">
                     {course.level}
