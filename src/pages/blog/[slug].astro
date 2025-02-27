@@ -7,8 +7,9 @@ import ProfileComponent from '../../components/ProfileComponent';
 import ClientOnlyContent from '../../components/ClientOnlyContent.jsx';
 import ReviewComponent from '../../components/ReviewComponent.jsx';
 import CartIcon from '../../components/CartIcon';
-import LanguageHandler from '../../components/LanguageHandler.jsx'; // 🔹 Importamos el nuevo componente
+import LanguageHandler from '../../components/LanguageHandler.jsx';
 import LanguageHandler2 from '../../components/LanguageHandler2.jsx';
+import PriceHandler from '../../components/PriceHandler.jsx';
 
 export async function getStaticPaths() {
   const courses = await getCoursePaths() || [];
@@ -43,115 +44,186 @@ const relatedCourses = course
       .sort(() => 0.5 - Math.random()) 
       .slice(0, 4)
   : [];
+
+let user = null;
+if (typeof window !== 'undefined') {
+  const userStr = localStorage.getItem('user');
+  if (userStr) {
+    try {
+      user = JSON.parse(userStr);
+    } catch (e) {
+      console.error('Error parsing user from localStorage:', e);
+    }
+  }
+}
 ---
 
 <html lang="es">
+<head>
   <meta charset="UTF-8">
-  <body class="bg-white text-gray-900">
-
-    <nav class="absolute top-0 left-0 w-full text-white py-4 z-50">
-      <div class="container mx-auto flex justify-between items-center px-6">
-        <a href="/" class="flex items-center text-4xl font-extrabold tracking-wide hover:text-gray-200">
-                     IT-ACADEMY
+</head>
+<body class="bg-white text-gray-900">
+  <header class="relative text-white w-full" style="background: url('/wall2.gif') no-repeat center 80%; background-size: cover;">
+    <div class="absolute inset-0 bg-black bg-opacity-50"></div>
+    
+    <!-- Barra de Navegación -->
+    <nav class="relative z-10 w-full">
+      <div class="max-w-[2000px] w-full mx-auto flex justify-between items-center px-4 sm:px-6 lg:px-8 py-4">
+        <a href="/" class="text-4xl font-extrabold tracking-wide hover:text-gray-200">
+          IT-ACADEMY
         </a>
         <ul class="flex space-x-8">
           <SearchComponent client:load />
           <ProfileComponent client:load />
           <CartIcon client:load />
-          <li><a href="/" class="hover:text-gray-300 text-lg py-[3px] mt-2 transition-all duration-300"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="28" height="30" fill="currentColor">
-            <path d="M32 3.5L2 28h6v30h16V41h16v17h16V28h6L32 3.5zM22 52h-8V36h8v16zm28 0h-8V36h8v16zM32 10L8 28h6v24h12V38h12v14h12V28h6L32 10z" />
-          </svg>
-          </a></li>
-          <li><a href="/noticias" class="hover:text-gray-300  py-[3px] text-lg transition-all duration-300"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="28" height="29" fill="currentColor">
-            <path d="M54 4H10a6 6 0 0 0-6 6v44a6 6 0 0 0 6 6h44a6 6 0 0 0 6-6V10a6 6 0 0 0-6-6zM10 8h44a2 2 0 0 1 2 2v36H8V10a2 2 0 0 1 2-2zm0 48a2 2 0 0 1-2-2v-6h48v6a2 2 0 0 1-2 2H10zm8-38h24v4H18zm0 10h28v4H18zm0 10h20v4H18z" />
-          </svg>
-          </a></li>
+          <li>
+            <a href="/" class="hover:text-gray-300 text-lg py-[3px] mt-2 transition-all duration-300">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="28" height="30" fill="currentColor">
+                <path d="M32 3.5L2 28h6v30h16V41h16v17h16V28h6L32 3.5zM22 52h-8V36h8v16zm28 0h-8V36h8v16zM32 10L8 28h6v24h12V38h12v14h12V28h6L32 10z" />
+              </svg>
+            </a>
+          </li>
+          <li>
+            <a href="/noticias" class="hover:text-gray-300 text-lg transition-all duration-300">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="28" height="29" fill="currentColor">
+                <path d="M54 4H10a6 6 0 0 0-6 6v44a6 6 0 0 0 6 6h44a6 6 0 0 0 6-6V10a6 6 0 0 0-6-6zM10 8h44a2 2 0 0 1 2 2v36H8V10a2 2 0 0 1 2-2zm0 48a2 2 0 0 1-2-2v-6h48v6a2 2 0 0 1-2 2H10zm8-38h24v4H18zm0 10h28v4H18zm0 10h20v4H18z" />
+              </svg>
+            </a>
+          </li>
         </ul>
       </div>
     </nav>
 
-    <header class="relative text-white py-32" style="background: url('/wall2.gif') no-repeat center 80%; background-size: cover;">
-      <div class="absolute inset-0 bg-black bg-opacity-50"></div>
-      <div class="relative container mx-auto text-center">
-        <!-- 🔹 Usamos el componente React para manejar el idioma -->
-        <LanguageHandler client:only="react" course={course} />
-      </div>
-    </header>
+    <div class="relative max-w-[2000px] w-full mx-auto text-center py-24">
+      <LanguageHandler client:only="react" course={course} />
+    </div>
+  </header>
 
-    <main class="container mx-auto px-12 py-16 grid grid-cols-12 gap-8">
-      <article class="col-span-8">
-        <img 
-          src={course.image} 
-          alt={course.title} 
-          class="w-full rounded-lg shadow-md mb-6 transition-transform duration-300 hover:scale-105" 
-        />
-        <LikeCounter courseID={course.id} client:load />
-        <LanguageHandler2 client:only="react" course={course} />
-       <div class="bg-gray-100 p-6 rounded-lg shadow-md">
-          <p class="text-lg mb-4">
-            <span class="font-semibold text-gray-900">Duración:</span> {course.duration}
-          </p>
-          <p class="text-lg mb-4">
-            <span class="font-semibold text-gray-900">Nivel:</span> {course.level}
-          </p>
-          <p class="text-lg mb-4">
-            <span class="font-semibold text-gray-900">Precio:</span>
-            <span class="font-bold text-red-600"> {course.price} €</span>
-          </p>
-          <p class="text-lg mb-4">
-            <span class="font-semibold text-gray-900">Contenido:</span> {course.content}
-          </p>
+  <main class="max-w-[2000px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-16 grid grid-cols-1 md:grid-cols-12 gap-8">
+    <article class="col-span-8">
+      <img 
+        src={course.image} 
+        alt={course.title} 
+        class="w-full rounded-lg shadow-md mb-6 transition-transform duration-300 hover:scale-105" 
+      />
+      <LikeCounter courseID={course?.id || ''} userID={user?.id || ''} client:load />
+      <LanguageHandler2 client:only="react" course={course} />
+      <div class="bg-gray-100 p-6 rounded-lg shadow-md">
+        <p class="text-lg mb-4">
+          <span class="font-semibold text-gray-900">Duración:</span> {course.duration}
+        </p>
+        <p class="text-lg mb-4">
+          <span class="font-semibold text-gray-900">Nivel:</span> {course.level}
+        </p>
+        <p class="text-lg mb-4">
+          <span class="font-semibold text-gray-900">Precio:</span>
+          <span class="font-bold text-red-600" id="course-price" data-price={course.price}> {course.price} €</span>
+        </p>
+        <p class="text-lg mb-4">
+          <span class="font-semibold text-gray-900">Contenido:</span> {course.content}
+        </p>
 
-          <div class="mt-6">
-            <h3 class="text-lg font-bold mb-2">Instructor:</h3>
-            <div class="flex items-center space-x-4">
-              <img 
-                src={course.instructor.profilePicture} 
-                alt={course.instructor.name} 
-                class="w-20 h-20 rounded-full shadow-md"
-              />
-              <div>
-                <p class="font-medium">{course.instructor.name}</p>
-                <p class="text-sm text-gray-600">{course.instructor.bio}</p>
-              </div>
+        <div class="mt-6">
+          <h3 class="text-lg font-bold mb-2">Instructor:</h3>
+          <div class="flex items-center space-x-4">
+            <img 
+              src={course.instructor.profilePicture} 
+              alt={course.instructor.name} 
+              class="w-20 h-20 rounded-full shadow-md"
+            />
+            <div>
+              <p class="font-medium">{course.instructor.name}</p>
+              <p class="text-sm text-gray-600">{course.instructor.bio}</p>
             </div>
           </div>
         </div>
-
-        <ClientOnlyContent client:load course={course} />
-      </article>
-
-<!-- Cursos Relacionados -->
-<aside class="col-span-4">
-  <h2 class="text-xl font-semibold mb-4">Cursos Relacionados</h2>
-  <div class="space-y-6">
-    {relatedCourses.map(related => (
-      <a href={`/blog/${related.id}`} key={related.id} class="block bg-white shadow-md rounded-lg overflow-hidden hover:shadow-lg transition-shadow">
-        <img 
-          src={related.image} 
-          alt={related.title} 
-          class="w-full h-32 object-cover"
-        />
-        <div class="p-4">
-          <h3 class="text-lg font-semibold text-gray-800">{related.title}</h3>
-          <p class="text-sm text-gray-600 truncate">{related.description}</p>
-          <p class="text-sm text-red-600 font-bold mt-2">{related.price} €</p>
-        </div>
-      </a>
-    ))}
-  </div>
-</aside>
-      
-    </main>
-
-    <ReviewComponent client:load courseId={course.id} />
-
-    <footer class="bg-[rgb(4,81,99)] text-gray-400 py-10 mt-20">
-      <div class="container mx-auto text-center">
-        <p class="text-lg font-semibold text-gray-200">Gracias por visitar IT-ACADEMY</p>
-        <p class="text-sm mt-4">&copy; 2025 IT Academy. Todos los derechos reservados.</p>
       </div>
-    </footer>
 
-  </body>
+      <ClientOnlyContent client:load course={course} />
+    </article>
+
+    <aside class="col-span-4">
+      <h2 class="text-xl font-semibold mb-4">Cursos Relacionados</h2>
+      <div class="space-y-6">
+        {relatedCourses.map((related, index) => (
+          <a href={`/blog/${related.id}`} class="block bg-white shadow-md rounded-lg overflow-hidden hover:shadow-lg transition-shadow">
+            <img 
+              src={related.image} 
+              alt={related.title} 
+              class="w-full h-32 object-cover"
+            />
+            <div class="p-4">
+              <div class="related-course-title" data-course-id={related.id}>
+                {related.title}
+              </div>
+              <div class="related-course-description text-sm text-gray-600 truncate" data-course-id={related.id}>
+                {related.description}
+              </div>
+              <p class="text-sm text-red-600 font-bold mt-2" id={`related-price-${index}`} data-price={related.price}>{related.price} €</p>
+            </div>
+          </a>
+        ))}
+      </div>
+    </aside>
+  </main>
+
+  <PriceHandler client:load mainPrice={course?.price || 0} relatedPrices={relatedCourses?.map(c => c?.price || 0) || []} />
+
+  <ReviewComponent client:load courseId={course.id} />
+
+  <footer class="bg-[rgb(4,81,99)] text-gray-400 py-10 mt-20 w-full">
+    <div class="max-w-[2000px] w-full mx-auto text-center px-4 sm:px-6 lg:px-8">
+      <p class="text-lg font-semibold text-gray-200">Gracias por visitar IT-ACADEMY</p>
+      <p class="text-sm mt-4">&copy; 2025 IT Academy. Todos los derechos reservados.</p>
+    </div>
+  </footer>
+
+  <script define:vars={{ relatedCourses }}>
+    const updateRelatedCoursesLanguage = () => {
+      const preferredLanguage = localStorage.getItem("preferredLanguage") || 'es';
+      const relatedTitles = document.querySelectorAll('.related-course-title');
+      const relatedDescriptions = document.querySelectorAll('.related-course-description');
+
+      relatedTitles.forEach(titleElement => {
+        const courseId = titleElement.getAttribute('data-course-id');
+        const course = relatedCourses.find(c => c.id === courseId);
+        
+        if (course && preferredLanguage === 'en' && course.translations?.en) {
+          titleElement.textContent = course.translations.en.title || course.title;
+        } else if (course) {
+          titleElement.textContent = course.title;
+        }
+      });
+
+      relatedDescriptions.forEach(descElement => {
+        const courseId = descElement.getAttribute('data-course-id');
+        const course = relatedCourses.find(c => c.id === courseId);
+        
+        if (course && preferredLanguage === 'en' && course.translations?.en) {
+          descElement.textContent = course.translations.en.description || course.description;
+        } else if (course) {
+          descElement.textContent = course.description;
+        }
+      });
+    };
+
+    // Inicializar cuando el DOM esté listo
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', updateRelatedCoursesLanguage);
+    } else {
+      updateRelatedCoursesLanguage();
+    }
+
+    // Escuchar cambios en el idioma
+    window.addEventListener('storage', (event) => {
+      if (event.key === "preferredLanguage") {
+        updateRelatedCoursesLanguage();
+      }
+    });
+
+    document.addEventListener('languageChange', () => {
+      updateRelatedCoursesLanguage();
+    });
+  </script>
+</body>
 </html>

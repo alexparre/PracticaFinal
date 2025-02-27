@@ -9,56 +9,72 @@ const news = await getNews();
 const courses = await getCourses();
 ---
 
-<style>
-  html {
-    scroll-behavior: smooth;
-  }
-</style>
 <html lang="es">
+<head>
   <meta charset="UTF-8">
-  <body class="bg-gradient-to-b from-gray-50 via-white to-gray-100 text-gray-900">
-    <!-- Barra de Navegación -->
-    <nav class="absolute top-0 left-0 w-full text-white py-4 z-50">
-      <div class="container mx-auto flex justify-between items-center px-6">
-        <a href="/" class="flex items-center text-4xl font-extrabold tracking-wide hover:text-gray-200">
-                     IT-ACADEMY
-        </a>
-        <ul class="flex space-x-8">
-          <SearchComponent client:load />
-          <ProfileComponent client:load />
-          <CartIcon client:load />
-          <li><a href="/" class="hover:text-gray-300 text-lg py-[3px] mt-2 transition-all duration-300"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="28" height="30" fill="currentColor">
-            <path d="M32 3.5L2 28h6v30h16V41h16v17h16V28h6L32 3.5zM22 52h-8V36h8v16zm28 0h-8V36h8v16zM32 10L8 28h6v24h12V38h12v14h12V28h6L32 10z" />
-          </svg>
-          </a></li>
-          <li><a href="/noticias" class="hover:text-gray-300  py-[3px] text-lg transition-all duration-300"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="28" height="29" fill="currentColor">
-            <path d="M54 4H10a6 6 0 0 0-6 6v44a6 6 0 0 0 6 6h44a6 6 0 0 0 6-6V10a6 6 0 0 0-6-6zM10 8h44a2 2 0 0 1 2 2v36H8V10a2 2 0 0 1 2-2zm0 48a2 2 0 0 1-2-2v-6h48v6a2 2 0 0 1-2 2H10zm8-38h24v4H18zm0 10h28v4H18zm0 10h20v4H18z" />
-          </svg>
-          </a></li>
-        </ul>
-      </div>
-    </nav>
-    <!-- Hero Section -->
-    <header class="relative text-white py-24" style="background: url('/walla.gif') no-repeat center center; background-size: cover;">
+  <title>IT-ACADEMY - Cursos de Programación</title>
+  <style>
+    html {
+      scroll-behavior: smooth;
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      overflow-x: hidden;
+    }
+  </style>
+</head>
+<body class="bg-gradient-to-b from-gray-50 via-white to-gray-100 text-gray-900">
+  <div class="w-full">
+    <!-- Hero Section con Nav integrado -->
+    <header class="relative text-white w-full" style="background: url('/walla.gif') no-repeat center center; background-size: cover;">
       <div class="absolute inset-0 bg-black bg-opacity-50"></div>
-      <div class="relative container mx-auto text-center px-8">
+      <!-- Barra de Navegación -->
+      <nav class="relative z-10 w-full">
+        <div class="flex justify-between items-center px-8 py-4 w-full">
+          <a href="/" class="flex items-center text-4xl font-extrabold tracking-wide hover:text-gray-200">
+            IT-ACADEMY
+          </a>
+          <ul class="flex space-x-8">
+            <SearchComponent client:load />
+            <ProfileComponent client:load />
+            <CartIcon client:load />
+            <li>
+              <a href="/" class="hover:text-gray-300 text-lg py-[3px] mt-2 transition-all duration-300">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="28" height="30" fill="currentColor">
+                  <path d="M32 3.5L2 28h6v30h16V41h16v17h16V28h6L32 3.5zM22 52h-8V36h8v16zm28 0h-8V36h8v16zM32 10L8 28h6v24h12V38h12v14h12V28h6L32 10z" />
+                </svg>
+              </a>
+            </li>
+            <li>
+              <a href="/noticias" class="hover:text-gray-300 py-[3px] text-lg transition-all duration-300">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="28" height="29" fill="currentColor">
+                  <path d="M54 4H10a6 6 0 0 0-6 6v44a6 6 0 0 0 6 6h44a6 6 0 0 0 6-6V10a6 6 0 0 0-6-6zM10 8h44a2 2 0 0 1 2 2v36H8V10a2 2 0 0 1 2-2zm0 48a2 2 0 0 1-2-2v-6h48v6a2 2 0 0 1-2 2H10zm8-38h24v4H18zm0 10h28v4H18zm0 10h20v4H18z" />
+                </svg>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </nav>
+
+      <div class="relative text-center px-4 py-20 w-full">
         <h1 class="text-5xl font-extrabold mb-6 drop-shadow-lg">Descubre los últimos Cursos sobre IT 💻 🛠️</h1>
-        <p class="text-2xl mb-8">Encuentra tus cursos favoritos y explora muchas categorias del mundo IT.Aprende los últimos Frameworks y conviertete en un Programador profeisonal👨‍💻🔥</p>
-    
+        <p class="text-2xl mb-8">Encuentra tus cursos favoritos y explora muchas categorias del mundo IT. Aprende los últimos Frameworks y conviertete en un Programador profesional 👨‍💻🔥</p>
       </div>
     </header>
 
-    <CourseGrid courses={courses} client:load />
+    <main class="w-full px-4 py-12">
+      <div class="max-w-[2000px] mx-auto">
+        <CourseGrid client:load courses={courses} />
+      </div>
 
-    
-
-      <section class="relative text-white mt-10">
+      <section class="relative text-white mt-10 w-full">
         <div class="slider-container relative overflow-hidden h-screen w-full">
           <div class="slider-wrapper flex transition-transform duration-500">
-            {news.map(item => (
+            {news.map((item) => (
               <div
                 class="slider-slide flex-shrink-0 w-full h-screen flex items-center justify-center"
-                key={item.id}
                 style={`background-image: url(${item.image}); background-size: cover; background-position: center;`}
               >
                 <div class="absolute inset-0 bg-black bg-opacity-50"></div>
@@ -75,8 +91,7 @@ const courses = await getCourses();
               </div>
             ))}
           </div>
-  
-          <!-- Botones de navegación -->
+
           <button class="slider-button-prev absolute left-4 top-1/2 transform -translate-y-1/2 bg-gray-800 text-white px-4 py-2 rounded-full">
             Prev
           </button>
@@ -87,19 +102,17 @@ const courses = await getCourses();
       </section>
     </main>
 
-
-    
     <!-- Testimonios -->
-    <section class="bg-gradient-to-b from-gray-100 via-white to-gray-100 py-20">
-      <div class="container mx-auto px-6 text-center">
-        <h2 class="text-4xl font-extrabold text-gray-800 mb-10">Lo que dicen nuestros Subscriptores</h2>
+    <section class="bg-gradient-to-b from-gray-100 via-white to-gray-100 py-20 w-full">
+      <div class="max-w-[2000px] mx-auto px-4">
+        <h2 class="text-4xl font-extrabold text-gray-800 mb-10 text-center">Lo que dicen nuestros Subscriptores</h2>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-12">
           <div class="bg-white shadow-xl rounded-lg p-8">
             <p class="text-gray-600 italic">"Increíble selección de álbumes⭐. Siempre encuentro lo que busco."</p>
             <h4 class="text-gray-900 font-bold mt-6">- Juan Pérez</h4>
           </div>
           <div class="bg-white shadow-xl rounded-lg p-8">
-            <p class="text-gray-600 italic">"La mejor pagina web para estar al dia de la musica.🚀 Mil gracias!!"</p>
+            <p class="text-gray-600 italic">"La mejor pagina web para estar al dia de la musica. Mil gracias!!"</p>
             <h4 class="text-gray-900 font-bold mt-6">- María López</h4>
           </div>
           <div class="bg-white shadow-xl rounded-lg p-8">
@@ -110,9 +123,8 @@ const courses = await getCourses();
       </div>
     </section>
 
-    
-    <section class="bg-gray-100 py-16">
-      <div class="container mx-auto px-6">
+    <section class="bg-gray-100 py-16 w-full">
+      <div class="max-w-[2000px] mx-auto px-4">
         <h2 class="text-3xl font-extrabold text-gray-800 mb-10 text-center">Preguntas Frecuentes</h2>
         <div class="space-y-6">
           <div>
@@ -131,10 +143,8 @@ const courses = await getCourses();
       </div>
     </section>
     
-   
-    
-    <section id="stats" class="py-12 bg-[rgb(4,81,99)]  text-white">
-      <div class="container mx-auto grid grid-cols-1 md:grid-cols-4 gap-12 text-center">
+    <section id="stats" class="py-12 bg-[rgb(4,81,99)] text-white w-full">
+      <div class="max-w-[2000px] mx-auto grid grid-cols-1 md:grid-cols-4 gap-12 text-center px-4">
         <div class="transform hover:scale-105 transition-transform duration-300">
           <h3 class="text-6xl font-extrabold mb-2">20,000+</h3>
           <p class="text-lg font-medium">Estudiantes Activos</p>
@@ -156,10 +166,10 @@ const courses = await getCourses();
         </div>
       </div>
     </section>
-    <section id="contact" class="bg-[rgb(4,81,99)] py-10">
-      <div class="container mx-auto px-6">
+
+    <section id="contact" class="bg-[rgb(4,81,99)] py-10 w-full">
+      <div class="max-w-[2000px] mx-auto px-4">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-    
           <!-- Texto Informativo -->
           <div class="text-left">
             <h2 class="text-4xl font-bold text-black mb-6">¿Tienes preguntas sobre nuestros cursos o deseas más información?</h2>
@@ -171,7 +181,7 @@ const courses = await getCourses();
     
           <!-- Formulario de Contacto -->
           <div class="flex justify-center">
-            <form id="contactForm" class="bg-white text-gray-700 shadow-lg rounded-lg max-w-2xl px-12 py-8">
+            <form id="contactForm" class="bg-white text-gray-700 shadow-lg rounded-lg w-full px-8 py-8">
               <label for="name" class="block text-gray-700 font-medium mb-6 text-center text-2xl">Formulario de Contacto</label>
     
               <!-- Nombre -->
@@ -204,11 +214,9 @@ const courses = await getCourses();
       </div>
     </section>
     
-
     <!-- Footer -->
-    <footer class="bg-[rgb(4,81,99)]  text-gray-400 py-10">
-      
-      <div class="container mx-auto text-center">
+    <footer class="bg-[rgb(4,81,99)] text-gray-400 py-10 w-full">
+      <div class="max-w-[2000px] mx-auto text-center px-4">
         <p class="text-lg font-semibold text-gray-200">Gracias por visitar IT-ACADEMY</p>
         <p class="text-sm mt-4">&copy; 2025 IT Academy. Todos los derechos reservados.</p>
         <div class="mt-6 space-x-8">
@@ -218,51 +226,59 @@ const courses = await getCourses();
         </div>
       </div>
     </footer>
-    
-    <script client:load>
-      document.addEventListener('DOMContentLoaded', () => {
-          const sliderWrapper = document.querySelector('.slider-wrapper');
-          const slides = document.querySelectorAll('.slider-slide');
-          const prevButton = document.querySelector('.slider-button-prev');
-          const nextButton = document.querySelector('.slider-button-next');
-      
-          let currentSlide = 0;
-      
-          // Función para actualizar la posición del slider
-          const updateSliderPosition = () => {
-            const slideWidth = slides[0].clientWidth;
-            sliderWrapper.style.transform = `translateX(-${currentSlide * slideWidth}px)`;
-      
-            slides.forEach((slide, index) => {
-              slide.style.opacity = index === currentSlide ? '1' : '0';
-            });
-          };
-      
-          // Botón "Next"
-          nextButton.addEventListener('click', () => {
-            if (currentSlide < slides.length - 1) {
-              currentSlide++;
-            } else {
-              currentSlide = 0; // Reinicia al primer slide
-            }
-            updateSliderPosition();
-          });
-      
-          // Botón "Prev"
-          prevButton.addEventListener('click', () => {
-            if (currentSlide > 0) {
-              currentSlide--;
-            } else {
-              currentSlide = slides.length - 1; // Va al último slide
-            }
-            updateSliderPosition();
-          });
-      
-          // Inicializa el slider
-          updateSliderPosition();
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const sliderWrapper = document.querySelector('.slider-wrapper') as HTMLElement;
+      const slides = document.querySelectorAll('.slider-slide') as NodeListOf<HTMLElement>;
+      const prevButton = document.querySelector('.slider-button-prev');
+      const nextButton = document.querySelector('.slider-button-next');
+
+      if (!sliderWrapper || !slides.length) return;
+
+      let currentSlide = 0;
+
+      const updateSliderPosition = () => {
+        const slideWidth = slides[0].clientWidth;
+        sliderWrapper.style.transform = `translateX(-${currentSlide * slideWidth}px)`;
+
+        slides.forEach((slide, index) => {
+          slide.style.opacity = index === currentSlide ? '1' : '0';
         });
+      };
 
+      nextButton?.addEventListener('click', () => {
+        if (currentSlide < slides.length - 1) {
+          currentSlide++;
+        } else {
+          currentSlide = 0;
+        }
+        updateSliderPosition();
+      });
 
-          </script>
-  </body>
+      prevButton?.addEventListener('click', () => {
+        if (currentSlide > 0) {
+          currentSlide--;
+        } else {
+          currentSlide = slides.length - 1;
+        }
+        updateSliderPosition();
+      });
+
+      // Inicializar el slider
+      updateSliderPosition();
+
+      // Auto-avance cada 5 segundos
+      setInterval(() => {
+        if (currentSlide < slides.length - 1) {
+          currentSlide++;
+        } else {
+          currentSlide = 0;
+        }
+        updateSliderPosition();
+      }, 5000);
+    });
+  </script>
+</body>
 </html>

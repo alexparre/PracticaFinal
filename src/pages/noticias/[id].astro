@@ -30,11 +30,15 @@ const relatedNews = allNews
   .slice(0, 4); // Limitar a 4
 ---
 <html lang="es">
+<head>
   <meta charset="UTF-8">
-
-  <body class="bg-white text-gray-900">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{newsItem.title} - IT Academy</title>
+  <meta name="description" content={newsItem.description}>
+</head>
+<body class="bg-white text-gray-900">
     <!-- Barra de Navegación -->
-    <nav class="absolute top-0 left-0 w-full text-white py-4 z-50">
+    <nav class="fixed top-0 left-0 w-full text-white py-4 z-50 bg-[rgb(4,81,99)]">
       <div class="container mx-auto flex justify-between items-center px-6">
         <a href="/" class="flex items-center text-4xl font-extrabold tracking-wide hover:text-gray-200">
           IT-ACADEMY
@@ -61,8 +65,8 @@ const relatedNews = allNews
       </div>
     </nav>
 
-    <!-- Hero Section -->
-    <header class="relative text-white py-32" style="background: url('/id.gif') no-repeat center 50%; background-size: cover;">
+    <!-- Hero Section con padding ajustado -->
+    <header class="relative text-white pt-24 pb-16" style="background: url('/id.gif') no-repeat center center; background-size: cover;">
       <div class="absolute inset-0 bg-black bg-opacity-50"></div>
       <div class="relative container mx-auto text-center">
         <h1 class="text-5xl font-extrabold mb-4 drop-shadow-md">{newsItem.title}</h1>
@@ -72,8 +76,8 @@ const relatedNews = allNews
       </div>
     </header>
 
-    <!-- Detalles de la Noticia -->
-    <main class="container mx-auto px-12 py-16 grid grid-cols-12 gap-8">
+    <!-- Contenido Principal con grid responsivo mejorado -->
+    <main class="container mx-auto px-4 sm:px-6 lg:px-12 py-16 grid grid-cols-1 lg:grid-cols-12 gap-8">
       <!-- Contenido Principal -->
       <article class="col-span-8">
         <img

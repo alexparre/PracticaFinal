@@ -1,18 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import useUserStore from '../utils/useUserStore'; // Zustand para manejar el usuario
+import useUserStore from '../utils/useUserStore'; 
 import { db } from '../utils/firebaseConfig';
 import { ref, update, get } from 'firebase/database';
+import { useCurrencyStore } from '../context/CurrencyContext';
+import CurrencyWrapper from './CurrencyWrapper';
 
-const CartIcon = () => {
+const CartIconContent = () => {
   const { user, updatePurchasedCourses } = useUserStore();
   const [cart, setCart] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isPurchased, setIsPurchased] = useState(false);
   const [total, setTotal] = useState(0);
-  const [currency, setCurrency] = useState("€"); 
-  const conversionRate = 0.83;
-
-
+  const { currency, setCurrency, convertPrice } = useCurrencyStore();
 
   useEffect(() => {
     const storedCart = JSON.parse(localStorage.getItem('cart')) || [];
@@ -36,20 +35,11 @@ const CartIcon = () => {
     };
   }, []);
 
-  const toggleCurrency = () => {
-    setCurrency(currency === "€" ? "£" : "€");
-  };
-  const convertPrice = (price) => {
-    return currency === "€" ? price : (price * conversionRate).toFixed(2);
-  };
-  
-
   const removeFromCart = (courseId) => {
     const updatedCart = cart.filter((course) => course.id !== courseId);
     setCart(updatedCart);
     localStorage.setItem('cart', JSON.stringify(updatedCart));
 
-    // 🔥 Actualizar total al eliminar un curso
     setTotal(updatedCart.reduce((acc, course) => acc + (course.price || 0), 0));
   };
 
@@ -63,7 +53,6 @@ const CartIcon = () => {
       const purchasedTags = cart.map((course) => course.tag);
       const userRef = ref(db, `users/user${user.id}`);
 
-      // 🔥 Obtener usuario actualizado desde Firebase para evitar duplicados
       const snapshot = await get(userRef);
       const userData = snapshot.val();
 
@@ -72,7 +61,6 @@ const CartIcon = () => {
         return;
       }
 
-      // 🔥 FILTRAMOS PARA EVITAR DUPLICADOS 🔥
       const currentPurchasedCourses = new Set(userData.purchasedCourses || []);
       const newCourses = purchasedTags.filter(course => !currentPurchasedCourses.has(course));
 
@@ -83,20 +71,16 @@ const CartIcon = () => {
 
       const updatedPurchasedCourses = [...currentPurchasedCourses, ...newCourses];
 
-      // 🔥 Actualizar en Firebase SOLO si hay cambios
       await update(userRef, { purchasedCourses: updatedPurchasedCourses });
 
-      // 🔥 Actualizar en Zustand sin duplicados
       updatePurchasedCourses(newCourses);
 
-      // 🔥 Actualizar LocalStorage con los cursos nuevos
       const updatedUser = { ...user, purchasedCourses: updatedPurchasedCourses };
       localStorage.setItem('user', JSON.stringify(updatedUser));
 
-      // 🔥 Vaciar carrito después de la compra
       localStorage.setItem('cart', JSON.stringify([]));
       setCart([]);
-      setTotal(0); // 🔥 Reiniciar el total a 0
+      setTotal(0); 
       setIsPurchased(true);
     } catch (error) {
       console.error('Error al procesar la compra:', error);
@@ -154,7 +138,7 @@ const CartIcon = () => {
                         </div>
                         <div className="text-right">
                           <p className="text-lg font-bold text-red-600">
-                            {course.price} {currency}
+                            {convertPrice(course.price)} {currency}
                           </p>
                           <button
                             onClick={() => removeFromCart(course.id)}
@@ -166,17 +150,10 @@ const CartIcon = () => {
                       </li>
                     ))}
                   </ul>
-                  <div className="border-t pt-2 text-right flex justify-between items-center">
-                    <button
-                      onClick={toggleCurrency}
-                      className=" bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-3 py-1 rounded-lg hover:bg-gray-400 transition"
-                    >
-                      Cambiar a {currency === "€" ? "£" : "€"}
-                    </button>
+                  <div className="border-t pt-2 text-right">
                     <p className="text-lg font-bold text-gray-800">
-  Total: <span className="text-red-600">{convertPrice(total)} {currency}</span>
-</p>
-
+                      Total: <span className="text-red-600">{convertPrice(total)} {currency}</span>
+                    </p>
                   </div>
                 </>
               )}
@@ -213,6 +190,14 @@ const CartIcon = () => {
     )}
   </div>
 );
+};
+
+const CartIcon = () => {
+  return (
+    <CurrencyWrapper>
+      <CartIconContent />
+    </CurrencyWrapper>
+  );
 };
 
 export default CartIcon;
